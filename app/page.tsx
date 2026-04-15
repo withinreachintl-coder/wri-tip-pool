@@ -43,7 +43,7 @@ export default function LandingPage() {
           Enter your shift tips, select who worked, and get instant transparent payouts — no calculators, no disputes, no compliance risk.
         </p>
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          <a href="https://buy.stripe.com/tip-pool-placeholder" style={{
+          <a href="https://buy.stripe.com/4gM7sK59fd3vc2P9eN9k40e" style={{
             fontFamily: 'var(--font-dmsans)', fontSize: '16px', fontWeight: 600,
             color: '#1C1917', background: '#D97706', padding: '14px 32px',
             borderRadius: '6px', textDecoration: 'none',
@@ -95,7 +95,7 @@ export default function LandingPage() {
               </li>
             ))}
           </ul>
-          <a href="https://buy.stripe.com/tip-pool-placeholder" style={{
+          <a href="https://buy.stripe.com/4gM7sK59fd3vc2P9eN9k40e" style={{
             display: 'block', fontFamily: 'var(--font-dmsans)', fontSize: '15px', fontWeight: 600,
             color: '#1C1917', background: '#D97706', padding: '14px', borderRadius: '6px', textDecoration: 'none',
           }}>

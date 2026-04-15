@@ -45,7 +45,7 @@ export default function LoginPage() {
                 {loading ? 'Sending...' : 'Send magic link'}
               </button>
             </form>
-            <p style={{ fontFamily: 'var(--font-dmsans)', fontSize: '12px', color: '#6B5B4E', textAlign: 'center', marginTop: '16px' }}>Password-free sign in. No account? <a href="https://buy.stripe.com/tip-pool-placeholder" style={{ color: '#D97706' }}>Start free trial →</a></p>
+            <p style={{ fontFamily: 'var(--font-dmsans)', fontSize: '12px', color: '#6B5B4E', textAlign: 'center', marginTop: '16px' }}>Password-free sign in. No account? <a href="https://buy.stripe.com/4gM7sK59fd3vc2P9eN9k40e" style={{ color: '#D97706' }}>Start free trial →</a></p>
           </div>
         ) : (
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '40px', textAlign: 'center' }}>

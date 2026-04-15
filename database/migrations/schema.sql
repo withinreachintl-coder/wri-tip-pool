@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS public.organizations (
   subscription_tier text DEFAULT 'free',
   stripe_customer_id text,
   stripe_subscription_id text,
-  trial_ends_at timestamptz,
+  trial_ends_at timestamptz DEFAULT (NOW() + INTERVAL '14 days'),
+  subscription_end_date timestamptz,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
