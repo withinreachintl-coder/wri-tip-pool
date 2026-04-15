@@ -1,0 +1,15 @@
+:root {
+  --font-playfair: 'Playfair Display', serif;
+  --font-dmsans: 'DM Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #1C1917;
+  color: #F5F0E8;
+  font-family: var(--font-dmsans), 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+input, select, button, textarea { font-family: inherit; }
