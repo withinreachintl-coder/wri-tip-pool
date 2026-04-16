@@ -47,7 +47,7 @@ export async function GET(request: Request) {
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
-    // Check if user already has an org
+    // Check if user already has an org (returning user)
     const { data: existingUser } = await supabaseAdmin
       .from('users')
       .select('org_id')
@@ -55,45 +55,50 @@ export async function GET(request: Request) {
       .single()
 
     if (existingUser?.org_id) {
-      console.log('[auth/callback] Existing user, skipping org creation')
-    } else {
-      // Upsert org (handles re-logins with same email gracefully)
-      const { data: org, error: orgError } = await supabaseAdmin
-        .from('organizations')
-        .upsert(
-          {
-            name: user.email?.split('@')[0] || 'My Restaurant',
-            owner_email: user.email,
-            plan: 'free',
-            subscription_status: 'trial',
-            trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
-          },
-          { onConflict: 'owner_email', ignoreDuplicates: false }
-        )
-        .select('id')
-        .single()
-
-      if (orgError || !org?.id) {
-        console.error('[auth/callback] Org upsert failed:', orgError?.message, orgError?.details)
-      } else {
-        console.log('[auth/callback] Org created/found:', org.id)
-
-        const { error: userError } = await supabaseAdmin
-          .from('users')
-          .upsert(
-            { id: user.id, org_id: org.id, email: user.email, name: user.email, role: 'admin' },
-            { onConflict: 'id', ignoreDuplicates: false }
-          )
-
-        if (userError) {
-          console.error('[auth/callback] User upsert failed:', userError.message, userError.details)
-        } else {
-          console.log('[auth/callback] User record created/updated for:', user.email)
-        }
-      }
+      // Returning user — go straight to calculator
+      console.log('[auth/callback] Returning user, redirecting to /calculator')
+      return NextResponse.redirect(new URL('/calculator', request.url))
     }
 
-    return NextResponse.redirect(new URL(redirectTo, request.url))
+    // New user — create org + user, then redirect to /setup
+    const { data: org, error: orgError } = await supabaseAdmin
+      .from('organizations')
+      .upsert(
+        {
+          name: user.email?.split('@')[0] || 'My Restaurant',
+          owner_email: user.email,
+          plan: 'free',
+          subscription_status: 'trial',
+          trial_ends_at: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+        },
+        { onConflict: 'owner_email', ignoreDuplicates: false }
+      )
+      .select('id')
+      .single()
+
+    if (orgError || !org?.id) {
+      console.error('[auth/callback] Org upsert failed:', orgError?.message, orgError?.details)
+      // Fall back to calculator even if org creation failed — don't block login
+      return NextResponse.redirect(new URL('/calculator', request.url))
+    }
+
+    console.log('[auth/callback] Org created:', org.id)
+
+    const { error: userError } = await supabaseAdmin
+      .from('users')
+      .upsert(
+        { id: user.id, org_id: org.id, email: user.email, name: user.email, role: 'admin' },
+        { onConflict: 'id', ignoreDuplicates: false }
+      )
+
+    if (userError) {
+      console.error('[auth/callback] User upsert failed:', userError.message, userError.details)
+    } else {
+      console.log('[auth/callback] User record created for:', user.email)
+    }
+
+    // New user → /setup to configure their pool formula
+    return NextResponse.redirect(new URL('/setup', request.url))
   } catch (err) {
     console.error('[auth/callback] Unexpected error:', err instanceof Error ? err.message : String(err))
     return NextResponse.redirect(new URL('/login?error=unexpected', request.url))
