@@ -36,8 +36,20 @@ export async function POST(request: NextRequest) {
 
   const supabase = getSupabaseAdmin()
 
+  // Guard: only process events for Tip Pool price IDs
+  const TIP_POOL_PRICE_IDS = ['price_1TMclACf8hgLWfNi0X57l6wV']
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session
+
+    // Exit early if this checkout is for a different product
+    const lineItems = session.line_items?.data ?? []
+    const sessionPriceId = lineItems[0]?.price?.id
+    if (sessionPriceId && !TIP_POOL_PRICE_IDS.includes(sessionPriceId)) {
+      console.log(`[tip-pool webhook] Skipping checkout for unrelated price ${sessionPriceId}`)
+      return NextResponse.json({ received: true })
+    }
+
     const customerId = session.customer as string
     if (!customerId) return NextResponse.json({ received: true })
 
@@ -72,6 +84,14 @@ export async function POST(request: NextRequest) {
 
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object as Stripe.Subscription
+
+    // Exit early if this subscription is for a different product
+    const subPriceId = subscription.items?.data?.[0]?.price?.id
+    if (subPriceId && !TIP_POOL_PRICE_IDS.includes(subPriceId)) {
+      console.log(`[tip-pool webhook] Skipping subscription.deleted for unrelated price ${subPriceId}`)
+      return NextResponse.json({ received: true })
+    }
+
     const customerId = subscription.customer as string
     if (!customerId) return NextResponse.json({ received: true })
 
